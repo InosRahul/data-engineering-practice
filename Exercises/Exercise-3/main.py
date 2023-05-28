@@ -4,28 +4,17 @@ import gzip
 
 
 def readAndExtractGzipFile(url):
-    response = requests.get(url, stream=True)
+    response = requests.get(url)
 
     # Extract the contents of the gzipped file
-    compressed_file = (response.raw)
-    buffer = io.BytesIO()
-    chunk_size = 1024
+    compressed_file = io.BytesIO(response.content)
+    uncompressed_file = gzip.GzipFile(fileobj=compressed_file)
 
-    while True:
-        chunk = compressed_file.read(chunk_size)
-        if not chunk:
-            break
-        buffer.write(chunk)
+    file_contents = uncompressed_file.read()
 
-    buffer.seek(0)
-    uncompressed_file = gzip.GzipFile(fileobj=buffer)
+    # Decode the file contents assuming it's UTF-8 encoded
+    decoded_contents = file_contents.decode("utf-8")
 
-    decoded_contents = ""
-    
-    for line in uncompressed_file:
-        decoded_line = line.decode("utf-8")
-        decoded_contents += (decoded_line)
- 
     return decoded_contents
 
 def getFileToPrintUrl(url):
